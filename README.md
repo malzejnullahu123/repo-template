@@ -16,6 +16,7 @@ Use this template as the starting point for a real application repository. Repla
 - GitHub repository URL
 - VPS IP or hostname
 - App-specific deployment values such as `appName`
+- The internal app `containerPort` that Docker should publish behind NGINX
 - Runtime values in `.env` and `.env.example`
 
 The workflow assumes the target app already has a valid `Dockerfile` at its repository root. A typical release flow is:
