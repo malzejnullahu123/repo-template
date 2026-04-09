@@ -1,0 +1,14 @@
+{
+  "name": "repo-template-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Starter app template for the VPS deploy platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0"
+  }
+}

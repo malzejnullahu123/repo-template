@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Repo Template App</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5efe5;
+      --text: #181512;
+      --muted: #6b625c;
+      --accent: #176a56;
+      --line: rgba(24, 21, 18, 0.1);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 208, 145, 0.7), transparent 24%),
+        radial-gradient(circle at bottom right, rgba(126, 202, 178, 0.6), transparent 22%),
+        var(--bg);
+    }
+
+    main {
+      width: min(720px, 100%);
+      padding: 32px;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background: rgba(255, 250, 243, 0.86);
+      backdrop-filter: blur(10px);
+    }
+
+    h1 { margin: 0 0 12px; font-size: clamp(2.1rem, 5vw, 3.8rem); line-height: 0.95; }
+    p { color: var(--muted); }
+    code {
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(23, 106, 86, 0.1);
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Repo Template App</h1>
+    <p>This is the starter application for the VPS blue/green deployment flow.</p>
+    <p>Update <code>APP_NAME</code>, Docker metadata, and the workflow placeholders before shipping.</p>
+  </main>
+</body>
+</html>

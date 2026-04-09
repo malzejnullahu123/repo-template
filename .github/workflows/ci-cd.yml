@@ -1,0 +1,64 @@
+name: CI/CD Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  APP_NAME: my-app
+  WORKER_URL: http://YOUR_VPS_IP:8001
+  WORKER_HOST: YOUR_VPS_IP:8001
+  DOMAIN: my-app.trior.tech
+  VPS_NAME: vps-1
+  SSL_CERTIFICATE: /etc/letsencrypt/live/trior.tech/fullchain.pem
+  SSL_CERTIFICATE_KEY: /etc/letsencrypt/live/trior.tech/privkey.pem
+  DESIRED_INSTANCES: 2
+  GREEN_PERCENTAGE: 10
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v2
+    - name: Build Docker image
+      run: docker build -t ${{ env.APP_NAME }}:${{ github.sha }} .
+    - name: Push image
+      run: docker push mydockerhub/${{ env.APP_NAME }}:${{ github.sha }}
+    - name: Ensure app is registered
+      run: |
+        curl --fail --show-error --request POST "${WORKER_URL}/register-app" \
+          --header "Content-Type: application/json" \
+          --data '{
+            "appName":"'"${APP_NAME}"'",
+            "domain":"'"${DOMAIN}"'",
+            "vpsName":"'"${VPS_NAME}"'",
+            "sslCertificate":"'"${SSL_CERTIFICATE}"'",
+            "sslCertificateKey":"'"${SSL_CERTIFICATE_KEY}"'",
+            "workerHost":"'"${WORKER_HOST}"'",
+            "greenPercentage":'"${GREEN_PERCENTAGE}"',
+            "desiredInstances":'"${DESIRED_INSTANCES}"'
+          }'
+      shell: bash
+    - name: Deploy next release
+      run: |
+        curl --fail --show-error --request POST "${WORKER_URL}/deploy" \
+          --header "Content-Type: application/json" \
+          --data '{
+            "image":"mydockerhub/'"${APP_NAME}"':${{ github.sha }}",
+            "appName":"'"${APP_NAME}"'",
+            "vpsName":"'"${VPS_NAME}"'",
+            "instances":'"${DESIRED_INSTANCES}"',
+            "initialGreenPercentage":0
+          }'
+      shell: bash
+    - name: Shift traffic after verification
+      run: |
+        curl --fail --show-error --request POST "${WORKER_URL}/rollout" \
+          --header "Content-Type: application/json" \
+          --data '{
+            "appName":"'"${APP_NAME}"'",
+            "greenPercentage":'"${GREEN_PERCENTAGE}"'
+          }'
+      shell: bash

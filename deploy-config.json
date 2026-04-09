@@ -1,0 +1,11 @@
+{
+  "appName": "my-app",
+  "domain": "my-app.trior.tech",
+  "vpsTargets": ["vps-1"],
+  "repoUrl": "git@github.com:yourname/my-app.git",
+  "workerHost": "YOUR_VPS_IP:8001",
+  "sslCertificate": "/etc/letsencrypt/live/trior.tech/fullchain.pem",
+  "sslCertificateKey": "/etc/letsencrypt/live/trior.tech/privkey.pem",
+  "desiredInstances": 2,
+  "greenPercentage": 0
+}
