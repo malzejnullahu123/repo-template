@@ -1,7 +1,7 @@
 {
-  "appName": "mal6",
-  "domain": "mal7.trior.tech",
-  "containerPort": 3003,
+  "appName": "mal8",
+  "domain": "mal9.trior.tech",
+  "containerPort": 3004,
   "vpsTargets": ["artemis", "titan"],
   "repoUrl": "git@github.com:malzejnullahu123/repo-template.git",
   "sslCertificate": "/etc/nginx/ssl/cloudflare.crt",
