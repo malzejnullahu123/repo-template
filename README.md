@@ -12,12 +12,21 @@ This directory represents the application side of the system: a deployable app r
 
 Use this template as the starting point for a real application repository. Replace placeholders before use:
 
-- Docker image name and registry path
-- GitHub repository URL
-- VPS IP or hostname
-- App-specific deployment values such as `appName`
-- The internal app `containerPort` that Docker should publish behind NGINX
 - Runtime values in `.env` and `.env.example`
+- Deployment metadata in `deploy-config.json`
+
+`deploy-config.json` is the single source of truth for deployment settings such as:
+- `appName`
+- `domain`
+- `containerPort`
+- `vpsTargets`
+- `sslCertificate`
+- `sslCertificateKey`
+- `desiredInstances`
+- `deployMode`
+- `greenPercentage`
+
+The workflow derives the Docker image repository as `${DOCKERHUB_USERNAME}/{appName}`, so the pushed image name follows the configured app name automatically.
 
 The workflow assumes the target app already has a valid `Dockerfile` at its repository root. A typical release flow is:
 

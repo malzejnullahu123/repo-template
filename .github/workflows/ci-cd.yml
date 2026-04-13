@@ -5,24 +5,26 @@ on:
     branches: [ main ]
 
 env:
-  APP_NAME: testing-app
   DEPLOY_MANAGER_URL: ${{ secrets.DEPLOY_MANAGER_URL }}
-  WORKER_URL: ${{ secrets.WORKER_URL }}
-  DOMAIN: test.trior.tech
-  VPS_NAME: artemiss
-  SSL_CERTIFICATE: /etc/nginx/ssl/cloudflare.crt
-  SSL_CERTIFICATE_KEY: /etc/nginx/ssl/cloudflare.key
-  CONTAINER_PORT: 3000
-  DESIRED_INSTANCES: 1
-  DEPLOY_MODE: canary
-  GREEN_PERCENTAGE: 10
-  DOCKER_IMAGE_REPOSITORY: malzej1/testing-app
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - name: Load deploy config
+      run: |
+        echo "APP_NAME=$(node -p "require('./deploy-config.json').appName")" >> $GITHUB_ENV
+        echo "DOMAIN=$(node -p "require('./deploy-config.json').domain")" >> $GITHUB_ENV
+        echo "CONTAINER_PORT=$(node -p "require('./deploy-config.json').containerPort")" >> $GITHUB_ENV
+        echo "SSL_CERTIFICATE=$(node -p "require('./deploy-config.json').sslCertificate")" >> $GITHUB_ENV
+        echo "SSL_CERTIFICATE_KEY=$(node -p "require('./deploy-config.json').sslCertificateKey")" >> $GITHUB_ENV
+        echo "DESIRED_INSTANCES=$(node -p "require('./deploy-config.json').desiredInstances")" >> $GITHUB_ENV
+        echo "DEPLOY_MODE=$(node -p "require('./deploy-config.json').deployMode || 'canary'")" >> $GITHUB_ENV
+        echo "GREEN_PERCENTAGE=$(node -p "require('./deploy-config.json').greenPercentage ?? 0")" >> $GITHUB_ENV
+        echo "VPS_NAMES=$(node -p "JSON.stringify(require('./deploy-config.json').vpsTargets || [])")" >> $GITHUB_ENV
+        echo "DOCKER_IMAGE_REPOSITORY=${{ secrets.DOCKERHUB_USERNAME }}/$(node -p "require('./deploy-config.json').appName")" >> $GITHUB_ENV
+      shell: bash
     - name: Set up Docker
       uses: docker/setup-buildx-action@v2
     - name: Log in to Docker Hub
@@ -58,7 +60,7 @@ jobs:
           --data '{
             "image":"'"${DOCKER_IMAGE_REPOSITORY}"':${{ github.sha }}",
             "appName":"'"${APP_NAME}"'",
-            "vpsNames":["'"${VPS_NAME}"'"],
+            "vpsNames":'"${VPS_NAMES}"',
             "domain":"'"${DOMAIN}"'",
             "sslCertificate":"'"${SSL_CERTIFICATE}"'",
             "sslCertificateKey":"'"${SSL_CERTIFICATE_KEY}"'",
@@ -75,7 +77,7 @@ jobs:
           --header "Content-Type: application/json" \
           --data '{
             "appName":"'"${APP_NAME}"'",
-            "vpsNames":["'"${VPS_NAME}"'"],
+            "vpsNames":'"${VPS_NAMES}"',
             "greenPercentage":'"${GREEN_PERCENTAGE}"'
           }'
       shell: bash
