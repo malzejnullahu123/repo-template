@@ -8,12 +8,13 @@ env:
   APP_NAME: repo-template-app
   DEPLOY_MANAGER_URL: ${{ secrets.DEPLOY_MANAGER_URL }}
   WORKER_URL: ${{ secrets.WORKER_URL }}
-  DOMAIN: test5.trior.tech
-  VPS_NAME: artemis
+  DOMAIN: test.trior.tech
+  VPS_NAME: artemiss
   SSL_CERTIFICATE: /etc/nginx/ssl/cloudflare.crt
   SSL_CERTIFICATE_KEY: /etc/nginx/ssl/cloudflare.key
   CONTAINER_PORT: 3000
   DESIRED_INSTANCES: 1
+  DEPLOY_MODE: canary
   GREEN_PERCENTAGE: 10
   DOCKER_IMAGE_REPOSITORY: malzej1/repo-template
 
@@ -42,43 +43,39 @@ jobs:
             "appName":"'"${APP_NAME}"'",
             "containerPort":'"${CONTAINER_PORT}"',
             "commitSha":"${{ github.sha }}",
-            "defaultDomain":"'"${DOMAIN}"'"
-          }'
-      shell: bash
-    - name: Ensure app is registered
-      run: |
-        curl --fail --show-error --request POST "${WORKER_URL}/register-app" \
-          --header "Content-Type: application/json" \
-          --data '{
-            "appName":"'"${APP_NAME}"'",
-            "domain":"'"${DOMAIN}"'",
-            "vpsName":"'"${VPS_NAME}"'",
-            "sslCertificate":"'"${SSL_CERTIFICATE}"'",
-            "sslCertificateKey":"'"${SSL_CERTIFICATE_KEY}"'",
-            "greenPercentage":'"${GREEN_PERCENTAGE}"',
-            "desiredInstances":'"${DESIRED_INSTANCES}"',
-            "containerPort":'"${CONTAINER_PORT}"'
+            "defaultDomain":"'"${DOMAIN}"'",
+            "source":"github-actions"
           }'
       shell: bash
     - name: Deploy next release
       run: |
-        curl --fail --show-error --request POST "${WORKER_URL}/deploy" \
+        INITIAL_GREEN=0
+        if [ "${DEPLOY_MODE}" = "immediate" ]; then
+          INITIAL_GREEN=100
+        fi
+        curl --fail --show-error --request POST "${DEPLOY_MANAGER_URL}/deploy" \
           --header "Content-Type: application/json" \
           --data '{
             "image":"'"${DOCKER_IMAGE_REPOSITORY}"':${{ github.sha }}",
             "appName":"'"${APP_NAME}"'",
-            "vpsName":"'"${VPS_NAME}"'",
+            "vpsNames":["'"${VPS_NAME}"'"],
+            "domain":"'"${DOMAIN}"'",
+            "sslCertificate":"'"${SSL_CERTIFICATE}"'",
+            "sslCertificateKey":"'"${SSL_CERTIFICATE_KEY}"'",
             "instances":'"${DESIRED_INSTANCES}"',
             "containerPort":'"${CONTAINER_PORT}"',
-            "initialGreenPercentage":0
+            "deployMode":"'"${DEPLOY_MODE}"'",
+            "initialGreenPercentage":'"${INITIAL_GREEN}"'
           }'
       shell: bash
     - name: Shift traffic after verification
+      if: env.DEPLOY_MODE == 'canary'
       run: |
-        curl --fail --show-error --request POST "${WORKER_URL}/rollout" \
+        curl --fail --show-error --request POST "${DEPLOY_MANAGER_URL}/rollout" \
           --header "Content-Type: application/json" \
           --data '{
             "appName":"'"${APP_NAME}"'",
+            "vpsNames":["'"${VPS_NAME}"'"],
             "greenPercentage":'"${GREEN_PERCENTAGE}"'
           }'
       shell: bash

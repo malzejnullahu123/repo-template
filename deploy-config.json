@@ -1,11 +1,13 @@
 {
-  "appName": "my-app",
-  "domain": "my-app.trior.tech",
-  "containerPort": 3000,
-  "vpsTargets": ["vps-1"],
+  "appName": "testing-app",
+  "domain": "testing-app.trior.tech",
+  "containerPort": 3001,
+  "vpsTargets": ["artemis", "titan"],
   "repoUrl": "git@github.com:yourname/my-app.git",
   "sslCertificate": "/etc/letsencrypt/live/trior.tech/fullchain.pem",
   "sslCertificateKey": "/etc/letsencrypt/live/trior.tech/privkey.pem",
   "desiredInstances": 2,
-  "greenPercentage": 0
+  "deployMode": "immediate",
+  "deployModeNote": "canary",
+  "greenPercentage": 100
 }
