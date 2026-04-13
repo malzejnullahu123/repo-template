@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 env:
-  APP_NAME: repo-template-app
+  APP_NAME: testing-app
   DEPLOY_MANAGER_URL: ${{ secrets.DEPLOY_MANAGER_URL }}
   WORKER_URL: ${{ secrets.WORKER_URL }}
   DOMAIN: test.trior.tech
@@ -16,7 +16,7 @@ env:
   DESIRED_INSTANCES: 1
   DEPLOY_MODE: canary
   GREEN_PERCENTAGE: 10
-  DOCKER_IMAGE_REPOSITORY: malzej1/repo-template
+  DOCKER_IMAGE_REPOSITORY: malzej1/testing-app
 
 jobs:
   build:
